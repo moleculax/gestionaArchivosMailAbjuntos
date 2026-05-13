@@ -1,0 +1,270 @@
+{
+  "name": "gestionaArchivosMailAbjuntos",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "hour": 12
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {},
+        "options": {
+          "dataPropertyAttachmentsPrefixName": "attachment_",
+          "downloadAttachments": true
+        }
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -528,
+        -240
+      ],
+      "id": "0691c162-529f-4bf2-bded-a12b23c0046f",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "g5GNMnve1YxenwAa",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Procesa TODOS los attachments del email\nconst newItems = [];\n\nfor (const item of items) {\n  const binaries = item.binary || {};\n\n  // Recorre cada archivo binario\n  for (const [key, binaryData] of Object.entries(binaries)) {\n    if (key.startsWith('attachment')) {\n      // Crea un nuevo item por cada attachment\n      newItems.push({\n        json: {\n          fileName: binaryData.fileName,\n          mimeType: binaryData.mimeType,\n          emailSubject: item.json.subject,\n          emailFrom: item.json.from?.address || item.json.from,\n          emailDate: item.json.date,\n        },\n        binary: { attachment: binaryData },\n      });\n    }\n  }\n}\n\nreturn newItems;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -48,
+        -240
+      ],
+      "id": "5c1caf4a-f1e5-403b-bd5a-1525caef8a48",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "attachment",
+        "name": "={{ $json.emailDate }} - {{ $json.fileName }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1CoPpquW-pJhVWXcI0BMtpcfr5Fqf9LEW",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        432,
+        -144
+      ],
+      "id": "44ff0661-1f64-4965-8a9a-6c40411ccb97",
+      "name": "imgArchivos",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "ZsCqa8EWlYvkGSaf",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "attachment",
+        "name": "={{ $json.emailDate }} - {{ $json.fileName }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1EECN7yE1ZihB5nVtE-gCc5L4KQIo8JQg",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        432,
+        -336
+      ],
+      "id": "e5319f44-0362-4bbd-9291-3833c7b897e0",
+      "name": "pdfArchivos",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "ZsCqa8EWlYvkGSaf",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.mimeType }}",
+                    "rightValue": "application/pdf",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "d8d3619c-c8cf-4ab9-82dc-6a25062f4655"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "PDF"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "05e55cec-408c-4745-a62c-45adaeec8832",
+                    "leftValue": "={{ $json.mimeType }}",
+                    "rightValue": "image/png",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "PNG"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        176,
+        -240
+      ],
+      "id": "904a346a-c6e2-4aac-b37b-117b5d680e26",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "limit": 10,
+        "simple": false,
+        "filters": {},
+        "options": {
+          "dataPropertyAttachmentsPrefixName": "attachment_",
+          "downloadAttachments": true
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -288,
+        -240
+      ],
+      "id": "0f94f63f-256d-4c94-b805-e12c73f77cd3",
+      "name": "Get many messages",
+      "webhookId": "40a5cba3-10db-4e07-bb9b-ca00166774de",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "g5GNMnve1YxenwAa",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get many messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "pdfArchivos",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "imgArchivos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many messages": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "74e78310-998b-4439-b7c2-f63f0f56f164",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4a4853dfd4e9956b51d385e74e1b11bf01853481765f1f7542b37dae5d7d8fec"
+  },
+  "id": "zLMmFqbOqjkyf6e4",
+  "tags": []
+}
