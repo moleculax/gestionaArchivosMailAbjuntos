@@ -5,7 +5,8 @@
 ![Status](https://img.shields.io/badge/status-production%20ready-brightgreen)
 
 > Automatización que extrae archivos adjuntos de correos electrónicos en Gmail y los guarda automáticamente en Google Drive
-
+![Workflow n8n](https://i.imgur.com/ejemplo.png)
+> 
 ## 📋 Tabla de Contenidos
 
 - [Descripción General](#-descripción-general)
