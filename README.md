@@ -6,7 +6,7 @@
 
 > Automatización que extrae archivos adjuntos de correos electrónicos en Gmail y los guarda automáticamente en Google Drive
 > 
-![Workflow n8n]([https://i.imgur.com/ejemplo.png](https://github.com/moleculax/gestionaArchivosMailAbjuntos/blob/main/screen.png))
+![Workflow n8n](https://github.com/moleculax/gestionaArchivosMailAbjuntos/blob/main/screen.png)
 > 
 ## 📋 Tabla de Contenidos
 
